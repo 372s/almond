@@ -1,22 +1,10 @@
 {
-    "name": "study",
-    "description": "php study composer",
+    "name": "wpollen/almond",
+    "description": "微信框架搭建",
     "repositories": {
         "codeguy/upload": {
             "type": "vcs",
             "url": "git@github.com:brandonsavage/Upload.git"
-        },
-        "jaeger/querylist": {
-            "type": "vcs",
-            "url": "https://github.com/jae-jae/QueryList.git"
-        },
-        "jaeger/phpquery-single": {
-            "type": "vcs",
-            "url": "https://github.com/jae-jae/phpQuery-single.git"
-        },
-        "jaeger/g-http": {
-            "type": "vcs",
-            "url": "https://github.com/jae-jae/GHttp.git"
         },
         "guzzlehttp/guzzle": {
             "type": "vcs",
@@ -25,12 +13,7 @@
     },
     "require": {
         "codeguy/upload": "dev-master",
-        "aileshe/upload": "*",
-        "league/csv": "^8.2",
-        "mk-j/PHP_XLSXWriter": "dev-master",
-        "rmccue/requests": "^1.7",
-        "rap2hpoutre/fast-excel": "^0.9.0",
-        "php-curl-class/php-curl-class": "@dev",
+        "guzzlehttp/guzzle": "*",
         "noahbuscher/macaw": "dev-master"
     },
     "autoload": {
