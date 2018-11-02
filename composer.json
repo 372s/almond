@@ -21,7 +21,8 @@
             "public/helpers.php"
         ],
         "psr-4": {
-            "app\\": "App/"
+            "App\\": "app/",
+            "Bootstrap\\": "bootstrap/"
         }
     }
 

@@ -1,29 +1,30 @@
 <?php
-class DatetimeUtil {
+class DateFormat {
     /**
      * 时间差计算
      *
-     * @param Timestamp $time
+     * @param int $time
+     * @param bool $short
+     * @param bool $need_time
      * @return String Time Format
      */
-    public static function format($timestamp, $short=FALSE, $needtime=TRUE) {
-        if(empty($timestamp)) {
-            $timestamp = time();
-        } elseif ($timestamp < 0) {
+    public static function format($time = 0, $short=FALSE, $need_time=TRUE) {
+        if(empty($time)) {
+            $time = time();
+        } elseif ($time < 0) {
             return '';
         }
-        $sResult = '';
-        $time = time() - $timestamp;
+        $time = time() - $time;
         if($time > 24 * 3600) {
             $iThisYear = mktime(0,0,0,1,1,intval(date("Y")));
-            if ($short && $timestamp >= $iThisYear) {
+            if ($short && $time >= $iThisYear) {
                 $tmp = 'm-d';
             } else {
                 $tmp = 'Y-m-d';
-                $needtime = false;
+                $need_time = false;
             }
-            $tmp .= $needtime ? ' H:i' : '';
-            $sResult = date($tmp, $timestamp);
+            $tmp .= $need_time ? ' H:i' : '';
+            $sResult = date($tmp, $time);
         } elseif ($time > 3600) {
             $sResult = intval($time / 3600).'小时前';
         } elseif ($time > 60) {
@@ -39,37 +40,40 @@ class DatetimeUtil {
     /**
      * UNIX时间转换为常用表示时间（年-月-日）
      *
-     * @param Timestamp $time
+     * @param int $time
+     * @param bool $short
+     * @param bool $need_time
      * @return String Time Format
      */
-    public static function unixTime2date($timestamp, $short=FALSE, $needtime=FALSE) {
-        if ($timestamp <= 0) {
+    public static function unixTime2date($time, $short=FALSE, $need_time=FALSE) {
+        if ($time <= 0) {
             return '';
         }
-        if(empty($timestamp)) {
-            $timestamp = time();
+        if(empty($time)) {
+            $time = time();
         }
         $sFormat = 'm-d';
         if (!$short) {
             $sFormat = 'Y-' . $sFormat;
         }
-        if ($needtime) {
+        if ($need_time) {
             $sFormat = $sFormat . ' H:i';
         }
-        return date($sFormat, $timestamp);
+        return date($sFormat, $time);
     }
 
     /**
      * UNIX时间转换为常用表示时间（年-月-日）
      *
-     * @param Timestamp $time
-     * @return String Time Format
+     * @param int $time
+     * @param string $interval
+     * @return String
      */
-    public static function dateAdd($timestamp, $interval='1d') {
-        if(empty($timestamp)) {
-            $timestamp = time();
+    public static function dateAdd($time, $interval = '1d') {
+        if(empty($time)) {
+            $time = time();
         }
-        $date = new DateTime(self::unixTime2date($timestamp, false, true));
+        $date = new DateTime(self::unixTime2date($time, false, true));
         date_add($date, new DateInterval("P" . strtoupper($interval)));
         return $date->format("Y-m-d");
     }
@@ -77,7 +81,6 @@ class DatetimeUtil {
     /**
      * 当前时间（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentDate() {
@@ -86,7 +89,6 @@ class DatetimeUtil {
     /**
      * 前一天（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getLastDay() {
@@ -96,7 +98,6 @@ class DatetimeUtil {
     /**
      * 前一周（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getLastWeek() {
@@ -106,7 +107,6 @@ class DatetimeUtil {
     /**
      * 前一月（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getLastMonth() {
@@ -116,7 +116,6 @@ class DatetimeUtil {
     /**
      * 前一季节（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getLastSeason() {
@@ -125,7 +124,7 @@ class DatetimeUtil {
 
     /**
      *
-     * @param $offset
+     * @param string $offset
      * @return string
      */
     private static function getLastDateCore($offset) {
@@ -159,7 +158,6 @@ class DatetimeUtil {
     /**
      * 本周开始（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentWeekStart() {
@@ -169,7 +167,6 @@ class DatetimeUtil {
     /**
      * 本周结束（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentWeekEnd() {
@@ -179,7 +176,6 @@ class DatetimeUtil {
     /**
      * 本月开始（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentMonthStart() {
@@ -189,7 +185,6 @@ class DatetimeUtil {
     /**
      * 本月结束（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentMonthEnd() {
@@ -200,7 +195,6 @@ class DatetimeUtil {
     /**
      * 本季度开始（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentSeasonStart() {
@@ -210,7 +204,6 @@ class DatetimeUtil {
     /**
      * 本季度结束（年-月-日）
      *
-     * @param Timestamp $time
      * @return String Time Format
      */
     public static function getCurrentSeasonEnd() {

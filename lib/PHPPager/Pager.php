@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Commmon;
+namespace PHPPager;
 
 /**
  * Description of Pager
