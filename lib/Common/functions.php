@@ -1,6 +1,6 @@
 <?php
 
-if (function_exists('import')) {
+if (! function_exists('import')) {
     /**
      * 导入所需的类库 同java的Import 本函数有缓存功能
      * @param string $class 类库命名空间字符串
@@ -30,7 +30,7 @@ if (function_exists('import')) {
     }
 }
 
-if (function_exists('vendor')) {
+if (! function_exists('vendor')) {
     /**
      * 快速导入第三方框架类库 所有第三方框架的类库文件统一放到 系统的Vendor目录下面
      * @param string $class 类库
@@ -48,14 +48,21 @@ if (function_exists('vendor')) {
 }
 
 
-if (function_exists('load')) {
+if (! function_exists('load')) {
     function load()
     {
 
     }
 }
 
-if (function_exists('view')) {
+if (! function_exists('config')) {
+    function config()
+    {
+
+    }
+}
+
+if (! function_exists('view')) {
     /**
      * 导入视图
      * @throws \InvalidArgumentException
@@ -65,5 +72,12 @@ if (function_exists('view')) {
     function view($name = null)
     {
         return \Bootstrap\View::make($name);
+    }
+}
+
+if (! function_exists('json')) {
+    function json($arr)
+    {
+        return \Bootstrap\View::json($arr);
     }
 }

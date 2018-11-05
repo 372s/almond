@@ -7,8 +7,7 @@ require_once dirname(__DIR__) . '/routes/routes.php';
 
 register_shutdown_function(function() {
     $return = \Bootstrap\Router::dispatch();
-        echo $return;
     \Bootstrap\View::process($return);
 });
 
-echo 2222 . "<br>";
+echo '@app.php' . "<br>";

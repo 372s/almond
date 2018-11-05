@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wq455
- * Date: 2018/11/06
- * Time: 02:37
- */
-
 namespace Bootstrap;
 
 
@@ -57,6 +50,7 @@ class View
         }
         if ( isset($view) && $view->isJson ) {
             echo json_encode($view->view);
+            exit();
         } else {
             if ( $view instanceof View ) {
                 if ($view->data) {
@@ -81,11 +75,27 @@ class View
 
     public function __call($method, $parameters)
     {
-        if (starts_with($method, 'with'))
+        if ($this->starts_with($method, 'with'))
         {
-            return $this->with(snake_case(substr($method, 4)), $parameters[0]);
+            return $this->with($this->snake_case(substr($method, 4)), $parameters[0]);
         }
 
         throw new \BadMethodCallException("Function [$method] does not exist!");
+    }
+
+    private function starts_with($haystack, $needle)
+    {
+        return $needle !== '' && mb_substr($haystack, 0, mb_strlen($needle)) === $needle;
+    }
+
+    private function snake_case($value, $delimiter = '_')
+    {
+        if (! ctype_lower($value)) {
+            $value = preg_replace('/\s+/u', '', ucwords($value));
+
+            $value = mb_strtolower(preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value), 'UTF-8');
+        }
+
+        return $value;
     }
 }
