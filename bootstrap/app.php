@@ -8,3 +8,5 @@ require_once dirname(__DIR__) . '/routes/routes.php';
 register_shutdown_function(function() {
     \Bootstrap\Router::dispatch();
 });
+
+echo 2222;

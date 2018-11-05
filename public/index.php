@@ -10,3 +10,6 @@ require_once dirname(__DIR__) . '/bootstrap/autoload.php';
 require_once dirname(__DIR__) . '/bootstrap/app.php';
 require_once dirname(__DIR__) . '/lib/Common/functions.php';
 
+echo 111;
+$page = new Page(10);
+print_r($page);
