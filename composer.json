@@ -1,20 +1,9 @@
 {
     "name": "wpollen/almond",
     "description": "微信框架搭建",
-    "repositories": {
-        "codeguy/upload": {
-            "type": "vcs",
-            "url": "git@github.com:brandonsavage/Upload.git"
-        },
-        "guzzlehttp/guzzle": {
-            "type": "vcs",
-            "url": "https://github.com/guzzle/guzzle.git"
-        }
-    },
     "require": {
         "codeguy/upload": "dev-master",
-        "guzzlehttp/guzzle": "*",
-        "noahbuscher/macaw": "dev-master"
+        "guzzlehttp/guzzle": "*"
     },
     "autoload": {
         "files": [
