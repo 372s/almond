@@ -7,11 +7,11 @@ namespace App\Controllers;
 class HomeController {
 
     public function home() {
-        echo 'Hello TinyLara!';
+        echo 'Hello Almond!';
         // or you can return Nothing.
     }
 
-    public function sohu() {
+    public function phpQuery() {
         echo 1;
     }
 }

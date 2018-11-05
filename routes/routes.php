@@ -2,12 +2,5 @@
 use Bootstrap\Router;
 
 Router::get('/', 'HomeController@home');
-Router::get('/sohu', 'HomeController@sohu');
+Router::get('/phpQuery', 'HomeController@phpQuery');
 
-Router::dispatch();
-// function dispatch()
-// {
-//
-// }
-//
-// register_shutdown_function('dispatch');
