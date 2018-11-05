@@ -54,3 +54,16 @@ if (function_exists('load')) {
 
     }
 }
+
+if (function_exists('view')) {
+    /**
+     * 导入视图
+     * @throws \InvalidArgumentException
+     * @param mixed $name
+     * @return object
+     */
+    function view($name = null)
+    {
+        return \Bootstrap\View::make($name);
+    }
+}

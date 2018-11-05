@@ -4,11 +4,13 @@
 */
 namespace App\Controllers;
 
+use Bootstrap\View;
+
 class HomeController {
 
     public function home() {
-        echo 'Hello Almond!';
-        // or you can return Nothing.
+        // return 'Hello Almond!';
+        return view('home')->with('name', 'wangqiang');
     }
 
     public function phpQuery() {
