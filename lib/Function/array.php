@@ -41,7 +41,7 @@ function is_array_assoc($array)
  *
  * @return array
  */
-function sortArr($arr, $field = '', $sort_by = SORT_ASC, $sort_type = SORT_NUMERIC)
+function sort_array($arr, $field = '', $sort_by = SORT_ASC, $sort_type = SORT_NUMERIC)
 {
     if($field){
         $temp = array_map(function($v) use($field) {

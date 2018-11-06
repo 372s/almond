@@ -28,7 +28,17 @@ echo '@index.php' . "<br>";
 // $page = new \PHPPager\Pager();
 // print_r($page);
 
-use RecursiveIteratorIterator;
+$path = dirname(__DIR__) . '/config';
+$directory = new \RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+$iterator = new \RecursiveIteratorIterator($directory);
+$files = array();
+foreach ($iterator as $info) {
+    // if ($info->isFile()) {
+        $files[] = $info->getPathname();
+    // }
+}
+print_r($files);die;
+// use RecursiveIteratorIterator;
 use Bootstrap\SystemFileIterator;
 
 $res = SystemFileIterator::create()->in((BASE_PATH . '/config'));
