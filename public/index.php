@@ -13,6 +13,26 @@ require_once dirname(__DIR__) . '/bootstrap/app.php';
 
 echo '@index.php' . "<br>";
 
+// print_r(glob(BASE_PATH . '/config/*.php', GLOB_BRACE));
+// $dir = new DirectoryIterator((BASE_PATH . '/config'));
+// foreach ($dir as $file) {
+//     //用isDot()方法分别过滤掉“.”和“..”目录
+//     if (! $dir->isDot() && $file->isFile()) {
+//         // echo $file->getFilename() . "\n" . $file->getExtension() . "<br />";
+//     } else if ($file->isDir()) {
+//         // print_r(glob($file));
+//     }
+// }
+
 // load('PHPPager.Pager');
 // $page = new \PHPPager\Pager();
 // print_r($page);
+
+use RecursiveIteratorIterator;
+use Bootstrap\SystemFileIterator;
+
+$res = SystemFileIterator::create()->in((BASE_PATH . '/config'));
+
+foreach ($res as $file) {
+    print_r($file);
+}
