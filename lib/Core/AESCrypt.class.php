@@ -1,28 +1,18 @@
 <?php
-//php aes加密类
+
+/**
+ * aes加密类
+ */
 class AESCrypt
 {
-    private static $test;
-
-    protected static $instance;
     public $iv = null;
     public $key = 'k1i2n3g4y5e6e';
     public $bit = 128;
-    private $cipher;
 
-    public static function init()
-    {
-        self::$test = 1000;
-        echo self::$test;
-    }
+    protected static $instance;
 
-    public function __construct()
-    {
-        echo 2;
-    }
     public static function getInstance()
     {
-        var_dump(self::$instance);
         if (!self::$instance) {
             self::$instance = new self();
         }
@@ -59,9 +49,9 @@ class AESCrypt
     }
 
     /**
-     * 动态加密字符串
      * aes加密
-     * @param  $input
+     * @param string $input
+     * @return string
      */
     public static function aesEncrypt($input)
     {
@@ -79,9 +69,9 @@ class AESCrypt
     }
 
     /**
-     * 动态加密字符串
      * aes 解密
-     * @param  $sStr
+     * @param string $sStr
+     * @return string
      */
     public static function aesDecrypt($sStr)
     {
@@ -101,7 +91,12 @@ class AESCrypt
         return $decrypted;
     }
 
-    // 动态加密随机key
+    /**
+     * 动态加密随机key
+     * @param int $length
+     * @param string $chars
+     * @return string
+     */
     public static function random($length, $chars = '1234567890')
     {
         $hash = '';

@@ -80,7 +80,7 @@ function is_ssl() {
  * @param boolean $echo 是否输出 默认为True 如果为false 则返回输出字符串
  * @param string $label 标签 默认为空
  * @param boolean $strict 是否严谨 默认为true
- * @return void|string
+ * @return mixed|string
  */
 function dump($var, $echo=true, $label=null, $strict=true) {
     $label = ($label === null) ? '' : rtrim($label) . ' ';
@@ -166,25 +166,4 @@ function array_map_recursive($filter, $data) {
             : call_user_func($filter, $val);
     }
     return $result;
-}
-
-/**
- * 加载配置文件 支持格式转换 仅支持一级配置
- * @param string $file 配置文件名
- * @return array
- */
-function load_config($file){
-    $ext  = pathinfo($file,PATHINFO_EXTENSION);
-    switch($ext){
-        case 'php':
-            return include $file;
-        case 'ini':
-            return parse_ini_file($file);
-        case 'yaml':
-            return yaml_parse_file($file);
-        case 'xml':
-            return (array)simplexml_load_file($file);
-        case 'json':
-            return json_decode(file_get_contents($file), true);
-    }
 }

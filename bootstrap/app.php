@@ -1,5 +1,9 @@
 <?php
 
+$app = new Bootstrap\Application(
+    realpath(__DIR__.'/../')
+);
+
 // TODO 加载配置文件
 require_once dirname(__DIR__) . '/routes/routes.php';
 

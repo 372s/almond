@@ -8,10 +8,11 @@ define('LIB_PATH', ROOT_PATH . '/lib');
 define('VIEW_BASE_PATH', ROOT_PATH . '/app/views/');
 
 require_once dirname(__DIR__) . '/bootstrap/autoload.php';
-require_once dirname(__DIR__) . '/bootstrap/app.php';
 require_once dirname(__DIR__) . '/lib/Common/functions.php';
+require_once dirname(__DIR__) . '/bootstrap/app.php';
 
 echo '@index.php' . "<br>";
 
-$page = new Page(10);
+// load('PHPPager.Pager');
+// $page = new \PHPPager\Pager();
 // print_r($page);

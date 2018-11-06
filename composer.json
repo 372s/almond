@@ -10,7 +10,7 @@
             "public/helpers.php"
         ],
         "classmap": [
-            "lib/Class/Page.class.php"
+            "lib/Core"
         ],
         "psr-4": {
             "App\\": "app/",
