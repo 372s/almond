@@ -5,7 +5,7 @@
  * @param $str
  * @return bool
  */
-function checkPsd($str) {
+function preg_psd($str) {
     $pattern = '/^[a-z_0-9]+$/i';
     if (preg_match($pattern, $str)) {
         return true;
@@ -20,7 +20,7 @@ function checkPsd($str) {
  * @param $str
  * @return bool
  */
-function checkEmail($str) {
+function preg_email($str) {
     $pattern = '/^(\w)+([-.]\w+)*@(\w)+(\.\w{2,4}){1,3}$/';
     if (preg_match($pattern, $str)) {
         return true;
@@ -34,7 +34,7 @@ function checkEmail($str) {
  * @param $str
  * @return bool
  */
-function checkURL($str) {
+function preg_url($str) {
     $pattern = '/^http(s?):\/\/(?:[A-za-z0-9-]+\.)+[A-za-z]{2,4}(:\d+)?(?:[\/\?#][\/=\?%\-&~`@[\]\':+!\.#\w]*)?/';
     if (preg_match($pattern, $str)) {
         return true;
@@ -48,7 +48,7 @@ function checkURL($str) {
  * @param string $str
  * @return bool
  */
-function check_zh($str) {
+function preg_zh($str) {
     return preg_match('/[\x{4e00}-\x{9fa5}]+/u', $str);
 }
 
@@ -61,12 +61,13 @@ function check_zh($str) {
  * @param $str
  * @return string
  */
-function removeAdjacentRepetition($str) {
+function remove_adjacent_repetition($str) {
     $pattern = '/(.)\1/';
     return preg_replace($pattern,'$1',$str);
 }
 
-function replaceImageStyle($str) {
+
+function replace_image_style($str) {
     $pattern = '/(<img\s*.*?\s*style=\").*?(\".*?\/?\s*>)/i';
     return preg_replace($pattern, '${1}width:100%;height:auto;${2}', $str);
 }
@@ -77,7 +78,7 @@ function replaceImageStyle($str) {
  * @param string $str
  * @return array
  */
-function noCaptureSymbol($str) {
+function no_capture_symbol($str) {
     $str = "你好<我>(爱)[北京]{天安门}";
     preg_match("/(?:<)(.*)(?:>)/i", $str, $result1);
     return $result1;
@@ -96,4 +97,33 @@ function noCaptureSymbol($str) {
                 [0] => 我
             )
     ) */
+}
+
+/**
+ * 获取内容的第一个图片
+ * @param string $html
+ * @return string
+ */
+function first_img($html)
+{
+    if(preg_match('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $html, $matches)) {
+        return $matches[0];
+    }
+}
+
+/**
+ * 判断访问来源是否为移动设备
+ * return true or false
+ * iphone 返回： mozilla/5.0 (iphone; u; cpu iphone os 4_3_2 like mac os x; en-us) applewebkit/533.17.9 (khtml, like gecko) version/5.0.2 mobile/8h7 safari/6533.18.5
+ * ipad 返回：mozilla/5.0 (ipad; u; cpu os 3_2 like mac os x; en-us) applewebkit/531.21.10 (khtml, like gecko) version/4.0.4 mobile/7b334b safari/531.21.10
+ * android返回：mozilla/5.0 (linux; android 4.1.1; nexus 7 build/jro03d) applewebkit/535.19 (khtml, like gecko) chrome/18.0.1025.166 safari/535.19
+ * WPhone 返回：mozilla/5.0 (compatible; msie 9.0; windows phone os 7.5; trident/5.0; iemobile/9.0; nokia; lumia 800)
+ */
+function is_mobile()
+{
+    $agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
+    if (preg_match('/iphone|android|ipad|windows phone/i', $agent)) {
+        return true;
+    }
+    return false;
 }

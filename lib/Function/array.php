@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Is Array Multidim
  * 判断多维数组
