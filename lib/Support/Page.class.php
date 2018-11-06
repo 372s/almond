@@ -12,9 +12,7 @@ class Page
     protected $_pageSlice;
 
     public function __construct($totalNumber, $perPage = 0, $currentPage = 0) {
-
-
-		if ($currentPage == false) {
+		if ($currentPage == 0) {
             if (empty($_GET['page'])) {
                 $currentPage = 1;
             } else {
@@ -22,7 +20,7 @@ class Page
             }
         }
 
-        if ($perPage == false) {
+        if ($perPage == 0) {
             $perPage = $this->_perPage;
         } else if ($perPage < 1) {
             $perPage = $this->_perPage;

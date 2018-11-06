@@ -65,9 +65,10 @@ class DateFormat {
     /**
      * UNIX时间转换为常用表示时间（年-月-日）
      *
-     * @param int $time
-     * @param string $interval
-     * @return String
+     * @param mixed $time
+     * @param mixed $interval
+     *
+     * @return mixed
      */
     public static function dateAdd($time, $interval = '1d') {
         if(empty($time)) {

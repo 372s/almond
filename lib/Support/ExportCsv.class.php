@@ -9,7 +9,7 @@ class ExportCsv
      * @param int $offset      起始行数
      * @return array|bool
      */
-    public function read_csv_lines($csv_file = '', $lines = 0, $offset = 0)
+    public static function read_csv_lines($csv_file = '', $lines = 0, $offset = 0)
     {
         if (!$fp = fopen($csv_file, 'r')) {
             return false;
@@ -28,14 +28,15 @@ class ExportCsv
         fclose($fp);
         return $data;
     }
-/**
- * 导出CSV文件
- * @param array $data        数据
- * @param array $header_data 首行数据
- * @param string $file_name  文件名称
- * @return string
- */
-    public function export_csv_1($data = [], $header_data = [], $file_name = '')
+
+    /**
+     * 导出CSV文件
+     * @param array $data        数据
+     * @param array $header_data 首行数据
+     * @param string $file_name  文件名称
+     * @return string
+     */
+    public static function export_csv_1($data = [], $header_data = [], $file_name = '')
     {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename=' . $file_name);
@@ -49,14 +50,15 @@ class ExportCsv
             echo iconv('utf-8', 'gbk//TRANSLIT', '"' . implode('","', $output) . "\"\n");
         }
     }
-/**
- * 导出CSV文件
- * @param array $data        数据
- * @param array $header_data 首行数据
- * @param string $file_name  文件名称
- * @return string
- */
-    public function export_csv_2($data = [], $header_data = [], $file_name = '')
+
+    /**
+     * 导出CSV文件
+     * @param array $data        数据
+     * @param array $header_data 首行数据
+     * @param string $file_name  文件名称
+     * @return string
+     */
+    public static function export_csv_2($data = [], $header_data = [], $file_name = '')
     {
         if (!$file_name) {
             $file_name = date('Ymd_His') . '.csv';
