@@ -1,5 +1,5 @@
 <?php
-namespace Bootstrap;
+namespace Bootstrap\View;
 
 
 class View

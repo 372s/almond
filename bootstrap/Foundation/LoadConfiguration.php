@@ -1,10 +1,10 @@
 <?php
 
-namespace Bootstrap;
+namespace Bootstrap\Foundation;
 
 use Exception;
 use SplFileInfo;
-use Bootstrap\Application;
+use Bootstrap\Foundation\Application;
 use DirectoryIterator;
 /**
 * \LoadConfiguration

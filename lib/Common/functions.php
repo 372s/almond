@@ -96,7 +96,7 @@ function load_config($file){
  */
 function view($name = null)
 {
-    return \Bootstrap\View::make($name);
+    return \Bootstrap\View\View::make($name);
 }
 
 /**
@@ -106,5 +106,5 @@ function view($name = null)
  */
 function json($arr)
 {
-    return \Bootstrap\View::json($arr);
+    return \Bootstrap\View\View::json($arr);
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Bootstrap;
+namespace Bootstrap\Filesystem;
 
 use IteratorAggregate;
 use Countable;

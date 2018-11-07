@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap;
+namespace Bootstrap\Routing;
 
 /**
  * @method static Router get(string $route, Callable $callback)

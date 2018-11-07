@@ -10,8 +10,8 @@ require_once dirname(__DIR__) . '/routes/routes.php';
 // TODO 中间件
 
 register_shutdown_function(function() {
-    $return = \Bootstrap\Router::dispatch();
-    \Bootstrap\View::process($return);
+    $return = \Bootstrap\Routing\Router::dispatch();
+    \Bootstrap\View\View::process($return);
 });
 
 echo '@app.php' . "<br>";

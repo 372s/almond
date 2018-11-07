@@ -6,7 +6,7 @@
  * Time: 23:32
  */
 
-namespace Bootstrap;
+namespace Bootstrap\Foundation;
 
 
 class Application
