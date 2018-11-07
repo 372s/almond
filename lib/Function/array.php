@@ -54,3 +54,13 @@ function sort_array($arr, $field = '', $sort_by = SORT_ASC, $sort_type = SORT_NU
     array_multisort($temp, $sort_by, $sort_type, $arr);
     return $arr;
 }
+
+function array_map_recursive($filter, $data) {
+    $result = array();
+    foreach ($data as $key => $val) {
+        $result[$key] = is_array($val)
+            ? array_map_recursive($filter, $val)
+            : call_user_func($filter, $val);
+    }
+    return $result;
+}

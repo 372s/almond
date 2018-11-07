@@ -1,8 +1,7 @@
 <?php
 
-$app = new Bootstrap\Application(
-    realpath(__DIR__.'/../')
-);
+use Wpollen\Routing\Router;
+use Wpollen\View\View;
 
 // TODO 加载配置文件
 require_once dirname(__DIR__) . '/routes/routes.php';
@@ -10,8 +9,19 @@ require_once dirname(__DIR__) . '/routes/routes.php';
 // TODO 中间件
 
 register_shutdown_function(function() {
-    $return = \Bootstrap\Routing\Router::dispatch();
-    \Bootstrap\View\View::process($return);
+    $return = Router::dispatch();
+    View::process($return);
 });
 
-echo '@app.php' . "<br>";
+// ==================================================== //
+/**
+ * 导入视图
+ * @throws \InvalidArgumentException
+ * @param mixed $name
+ * @return object
+ */
+function view($name = null)
+{
+    return View::make($name);
+}
+// ==================================================== //

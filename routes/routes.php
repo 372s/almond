@@ -1,5 +1,5 @@
 <?php
-use Bootstrap\Router;
+use Wpollen\Routing\Router;
 
 Router::get('/', 'HomeController@home');
 Router::get('/phpQuery', 'HomeController@phpQuery');

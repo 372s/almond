@@ -11,22 +11,32 @@ require_once dirname(__DIR__) . '/bootstrap/autoload.php';
 require_once dirname(__DIR__) . '/lib/Common/functions.php';
 require_once dirname(__DIR__) . '/bootstrap/app.php';
 
-echo '@index.php' . "<br>";
-
-// print_r(glob(BASE_PATH . '/config/*.php', GLOB_BRACE));
-// $dir = new DirectoryIterator((BASE_PATH . '/config'));
-// foreach ($dir as $file) {
-//     //用isDot()方法分别过滤掉“.”和“..”目录
-//     if (! $dir->isDot() && $file->isFile()) {
-//         // echo $file->getFilename() . "\n" . $file->getExtension() . "<br />";
-//     } else if ($file->isDir()) {
-//         // print_r(glob($file));
-//     }
-// }
 
 // load('PHPPager.Pager');
 // $page = new \PHPPager\Pager();
 // print_r($page);
+
+// use App\Filesystem\Filesystem;
+//
+// $res = Filesystem::create()->in((BASE_PATH . '/config'));
+//
+// foreach ($res as $file) {
+//     print_r($file);
+// }
+// die;
+
+$path = dirname(__DIR__) . '/config';
+$directory = new \RecursiveDirectoryIterator($path, \RecursiveIteratorIterator::LEAVES_ONLY);
+$iterator = new \RecursiveIteratorIterator($directory);
+$dirs = array();
+foreach ($iterator as $dir) {
+    // $dirs[] = $dir->getPathname();
+    if ($dir->isDir()) {
+        $dirs[] = rtrim($dir->getPathname(), '.');
+    }
+}
+print_r($dirs);die;
+
 
 $path = dirname(__DIR__) . '/config';
 $directory = new \RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
@@ -38,11 +48,3 @@ foreach ($iterator as $info) {
     // }
 }
 print_r($files);die;
-// use RecursiveIteratorIterator;
-use Bootstrap\SystemFileIterator;
-
-$res = SystemFileIterator::create()->in((BASE_PATH . '/config'));
-
-foreach ($res as $file) {
-    print_r($file);
-}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Foundation;
+namespace App\Foundation;
 
 use Exception;
 use SplFileInfo;

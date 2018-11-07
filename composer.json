@@ -1,7 +1,14 @@
 {
     "name": "wpollen/almond",
     "description": "微信框架搭建",
+    "repositories": {
+        "wpollen/framework": {
+            "type": "vcs",
+            "url": "git@github.com:wpollen/framework.git"
+        }
+    },
     "require": {
+        "wpollen/framework": "dev-master",
         "codeguy/upload": "dev-master",
         "guzzlehttp/guzzle": "*"
     },
@@ -9,12 +16,8 @@
         "files": [
             "public/helpers.php"
         ],
-        "classmap": [
-            "lib/Core"
-        ],
         "psr-4": {
-            "App\\": "app/",
-            "Bootstrap\\": "bootstrap/"
+            "App\\": "app/"
         }
     }
 

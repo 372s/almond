@@ -1,10 +1,10 @@
 <?php
-namespace Bootstrap\Filesystem;
+namespace App\Filesystem;
 
 use IteratorAggregate;
 use Countable;
 
-class SystemFileIterator implements IteratorAggregate, Countable
+class Filesystem implements IteratorAggregate, Countable
 {
     const IGNORE_VCS_FILES = 1;
     const IGNORE_DOT_FILES = 2;
@@ -55,6 +55,25 @@ class SystemFileIterator implements IteratorAggregate, Countable
         }
 
         return $iterator;
+    }
+
+    public function append($iterator)
+    {
+        if ($iterator instanceof \IteratorAggregate) {
+            $this->iterators[] = $iterator->getIterator();
+        } elseif ($iterator instanceof \Iterator) {
+            $this->iterators[] = $iterator;
+        } elseif ($iterator instanceof \Traversable || \is_array($iterator)) {
+            $it = new \ArrayIterator();
+            foreach ($iterator as $file) {
+                $it->append($file instanceof \SplFileInfo ? $file : new \SplFileInfo($file));
+            }
+            $this->iterators[] = $it;
+        } else {
+            throw new \InvalidArgumentException('Finder::append() method wrong argument type.');
+        }
+
+        return $this;
     }
 
     /**
@@ -110,6 +129,10 @@ class SystemFileIterator implements IteratorAggregate, Countable
             $flags |= \RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
         }
 
+        $iterator = new \RecursiveDirectoryIterator($dir, $flags);
+        $iterator = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::SELF_FIRST);
+
+        return $iterator;
     }
 
 

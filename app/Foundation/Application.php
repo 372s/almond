@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: wq455
@@ -6,7 +7,7 @@
  * Time: 23:32
  */
 
-namespace Bootstrap\Foundation;
+namespace App\Foundation;
 
 
 class Application
