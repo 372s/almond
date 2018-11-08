@@ -1,168 +1,579 @@
 <?php
 namespace App\Filesystem;
 
-use IteratorAggregate;
-use Countable;
+use Exception;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
-class Filesystem implements IteratorAggregate, Countable
+class Filesystem
 {
-    const IGNORE_VCS_FILES = 1;
-    const IGNORE_DOT_FILES = 2;
-
-    private $mode = 0;
-    private $names = array();
-    private $notNames = array();
-    private $exclude = array();
-    private $filters = array();
-    private $depths = array();
-    private $sizes = array();
-    private $followLinks = false;
-    private $sort = false;
-    private $ignore = 0;
-    private $dirs = array();
-    private $dates = array();
-    private $iterators = array();
-    private $contains = array();
-    private $notContains = array();
-    private $paths = array();
-    private $notPaths = array();
-    private $ignoreUnreadableDirs = false;
-
-    private static $vcsPatterns = array('.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr', '.git', '.hg');
-
-    public function __construct()
+    /**
+     * Determine if a file or directory exists.
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    public function exists($path)
     {
-        $this->ignore = static::IGNORE_VCS_FILES | static::IGNORE_DOT_FILES;
-    }
-
-    public function getIterator()
-    {
-        if (0 === \count($this->dirs) && 0 === \count($this->iterators)) {
-            throw new \LogicException('You must call one of in() or append() methods before iterating over a Finder.');
-        }
-
-        if (1 === \count($this->dirs) && 0 === \count($this->iterators)) {
-            return $this->searchInDirectory($this->dirs[0]);
-        }
-
-        $iterator = new \AppendIterator();
-        foreach ($this->dirs as $dir) {
-            $iterator->append($this->searchInDirectory($dir));
-        }
-
-        foreach ($this->iterators as $it) {
-            $iterator->append($it);
-        }
-
-        return $iterator;
-    }
-
-    public function append($iterator)
-    {
-        if ($iterator instanceof \IteratorAggregate) {
-            $this->iterators[] = $iterator->getIterator();
-        } elseif ($iterator instanceof \Iterator) {
-            $this->iterators[] = $iterator;
-        } elseif ($iterator instanceof \Traversable || \is_array($iterator)) {
-            $it = new \ArrayIterator();
-            foreach ($iterator as $file) {
-                $it->append($file instanceof \SplFileInfo ? $file : new \SplFileInfo($file));
-            }
-            $this->iterators[] = $it;
-        } else {
-            throw new \InvalidArgumentException('Finder::append() method wrong argument type.');
-        }
-
-        return $this;
+        return file_exists($path);
     }
 
     /**
-     * Counts all the results collected by the iterators.
+     * Get the contents of a file.
      *
+     * @param  string  $path
+     * @param  bool  $lock
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function get($path, $lock = false)
+    {
+        if ($this->isFile($path)) {
+            return $lock ? $this->sharedGet($path) : file_get_contents($path);
+        }
+
+        throw new Exception("File does not exist at path {$path}");
+    }
+
+    /**
+     * Get contents of a file with shared access.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function sharedGet($path)
+    {
+        $contents = '';
+
+        $handle = fopen($path, 'rb');
+
+        if ($handle) {
+            try {
+                if (flock($handle, LOCK_SH)) {
+                    clearstatcache(true, $path);
+
+                    $contents = fread($handle, $this->size($path) ?: 1);
+
+                    flock($handle, LOCK_UN);
+                }
+            } finally {
+                fclose($handle);
+            }
+        }
+
+        return $contents;
+    }
+
+    /**
+     * Get the returned value of a file.
+     *
+     * @param  string  $path
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public function getRequire($path)
+    {
+        if ($this->isFile($path)) {
+            return require $path;
+        }
+
+        throw new Exception("File does not exist at path {$path}");
+    }
+
+    /**
+     * Require the given file once.
+     *
+     * @param  string  $file
+     * @return mixed
+     */
+    public function requireOnce($file)
+    {
+        require_once $file;
+    }
+
+    /**
+     * Get the MD5 hash of the file at the given path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function hash($path)
+    {
+        return md5_file($path);
+    }
+
+    /**
+     * Write the contents of a file.
+     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  bool  $lock
      * @return int
      */
-    public function count()
+    public function put($path, $contents, $lock = false)
     {
-        return iterator_count($this->getIterator());
+        return file_put_contents($path, $contents, $lock ? LOCK_EX : 0);
     }
 
     /**
-     * @param $dir
+     * Prepend to a file.
      *
-     * @return \Iterator
+     * @param  string  $path
+     * @param  string  $data
+     * @return bool
      */
-    private function searchInDirectory($dir)
+    public function prepend($path, $data)
     {
-        if (static::IGNORE_VCS_FILES === (static::IGNORE_VCS_FILES & $this->ignore)) {
-            $this->exclude = array_merge($this->exclude, self::$vcsPatterns);
+        if ($this->exists($path)) {
+            return $this->put($path, $data.$this->get($path));
         }
 
-        if (static::IGNORE_DOT_FILES === (static::IGNORE_DOT_FILES & $this->ignore)) {
-            $this->notPaths[] = '#(^|/)\..+(/|$)#';
+        return $this->put($path, $data);
+    }
+
+    /**
+     * Append to a file.
+     *
+     * @param  string  $path
+     * @param  string  $data
+     * @return int
+     */
+    public function append($path, $data)
+    {
+        return file_put_contents($path, $data, FILE_APPEND);
+    }
+
+    /**
+     * Get or set UNIX mode of a file or directory.
+     *
+     * @param  string  $path
+     * @param  int  $mode
+     * @return mixed
+     */
+    public function chmod($path, $mode = null)
+    {
+        if ($mode) {
+            return chmod($path, $mode);
         }
 
-        $minDepth = 0;
-        $maxDepth = PHP_INT_MAX;
+        return substr(sprintf('%o', fileperms($path)), -4);
+    }
 
-        foreach ($this->depths as $comparator) {
-            switch ($comparator->getOperator()) {
-                case '>':
-                    $minDepth = $comparator->getTarget() + 1;
-                    break;
-                case '>=':
-                    $minDepth = $comparator->getTarget();
-                    break;
-                case '<':
-                    $maxDepth = $comparator->getTarget() - 1;
-                    break;
-                case '<=':
-                    $maxDepth = $comparator->getTarget();
-                    break;
-                default:
-                    $minDepth = $maxDepth = $comparator->getTarget();
+    /**
+     * Delete the file at a given path.
+     *
+     * @param  string|array  $paths
+     * @return bool
+     */
+    public function delete($paths)
+    {
+        $paths = is_array($paths) ? $paths : func_get_args();
+
+        $success = true;
+
+        foreach ($paths as $path) {
+            try {
+                if (! @unlink($path)) {
+                    $success = false;
+                }
+            } catch (Exception $e) {
+                $success = false;
             }
         }
 
-        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        return $success;
+    }
 
-        if ($this->followLinks) {
-            $flags |= \RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
+    /**
+     * Move a file to a new location.
+     *
+     * @param  string  $path
+     * @param  string  $target
+     * @return bool
+     */
+    public function move($path, $target)
+    {
+        return rename($path, $target);
+    }
+
+    /**
+     * Copy a file to a new location.
+     *
+     * @param  string  $path
+     * @param  string  $target
+     * @return bool
+     */
+    public function copy($path, $target)
+    {
+        return copy($path, $target);
+    }
+
+    /**
+     * Create a hard link to the target file or directory.
+     *
+     * @param  string  $target
+     * @param  string  $link
+     * @return mixed
+     */
+    public function link($target, $link)
+    {
+        if (strtolower(substr(PHP_OS, 0, 3)) !== 'win') {
+            return symlink($target, $link);
         }
 
-        $iterator = new \RecursiveDirectoryIterator($dir, $flags);
-        $iterator = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::SELF_FIRST);
+        $mode = $this->isDirectory($target) ? 'J' : 'H';
 
-        return $iterator;
+        exec("mklink /{$mode} \"{$link}\" \"{$target}\"");
     }
 
-
-    public static function create()
+    /**
+     * Extract the file name from a file path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function name($path)
     {
-        return new static();
+        return pathinfo($path, PATHINFO_FILENAME);
     }
 
-    public function in($dirs)
+    /**
+     * Extract the trailing name component from a file path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function basename($path)
     {
-        $resolvedDirs = array();
+        return pathinfo($path, PATHINFO_BASENAME);
+    }
 
-        foreach ((array) $dirs as $dir) {
-            if (is_dir($dir)) {
-                $resolvedDirs[] = $this->normalizeDir($dir);
-            } elseif ($glob = glob($dir, (\defined('GLOB_BRACE') ? GLOB_BRACE : 0) | GLOB_ONLYDIR)) {
-                $resolvedDirs = array_merge($resolvedDirs, array_map(array($this, 'normalizeDir'), $glob));
-            } else {
-                throw new \InvalidArgumentException(sprintf('The "%s" directory does not exist.', $dir));
+    /**
+     * Extract the parent directory from a file path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function dirname($path)
+    {
+        return pathinfo($path, PATHINFO_DIRNAME);
+    }
+
+    /**
+     * Extract the file extension from a file path.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function extension($path)
+    {
+        return pathinfo($path, PATHINFO_EXTENSION);
+    }
+
+    /**
+     * Get the file type of a given file.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function type($path)
+    {
+        return filetype($path);
+    }
+
+    /**
+     * Get the mime-type of a given file.
+     *
+     * @param  string  $path
+     * @return string|false
+     */
+    public function mimeType($path)
+    {
+        return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $path);
+    }
+
+    /**
+     * Get the file size of a given file.
+     *
+     * @param  string  $path
+     * @return int
+     */
+    public function size($path)
+    {
+        return filesize($path);
+    }
+
+    /**
+     * Get the file's last modification time.
+     *
+     * @param  string  $path
+     * @return int
+     */
+    public function lastModified($path)
+    {
+        return filemtime($path);
+    }
+
+    /**
+     * Determine if the given path is a directory.
+     *
+     * @param  string  $directory
+     * @return bool
+     */
+    public function isDirectory($directory)
+    {
+        return is_dir($directory);
+    }
+
+    /**
+     * Determine if the given path is readable.
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    public function isReadable($path)
+    {
+        return is_readable($path);
+    }
+
+    /**
+     * Determine if the given path is writable.
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    public function isWritable($path)
+    {
+        return is_writable($path);
+    }
+
+    /**
+     * Determine if the given path is a file.
+     *
+     * @param  string  $file
+     * @return bool
+     */
+    public function isFile($file)
+    {
+        return is_file($file);
+    }
+
+    /**
+     * Find path names matching a given pattern.
+     *
+     * @param  string  $pattern
+     * @param  int     $flags
+     * @return array
+     */
+    public function glob($pattern, $flags = 0)
+    {
+        return glob($pattern, $flags);
+    }
+
+    /**
+     * Get an array of all files in a directory.
+     *
+     * @param  string  $directory
+     * @return array
+     */
+    public function files($directory)
+    {
+        $glob = glob($directory.DIRECTORY_SEPARATOR.'*');
+
+        if ($glob === false) {
+            return [];
+        }
+
+        // To get the appropriate files, we'll simply glob the directory and filter
+        // out any "files" that are not truly files so we do not end up with any
+        // directories in our list, but only true files within the directory.
+        return array_filter($glob, function ($file) {
+            return filetype($file) == 'file';
+        });
+    }
+
+    /**
+     * Get all of the files from the given directory (recursive).
+     *
+     * @param  string  $directory
+     * @param  bool  $hidden
+     * @return array
+     */
+    public function allFiles($directory, $hidden = false)
+    {
+        if ($hidden) {
+            $flags = FilesystemIterator::SKIP_DOTS;
+        } else {
+            $flags = RecursiveIteratorIterator::LEAVES_ONLY;
+        }
+        $directory = new RecursiveDirectoryIterator($directory, $flags);
+        $iterator = new RecursiveIteratorIterator($directory);
+        $files = array();
+        foreach ($iterator as $info) {
+            $files[] = $info->getPathname();
+        }
+        return $files;
+    }
+
+    /**
+     * Get all of the directories within a given directory.
+     *
+     * @param  string  $directory
+     * @return array
+     */
+    public function directories($directory)
+    {
+        $directory = new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
+        $dirs = array();
+        foreach ($iterator as $dir) {
+            if ($dir->isDir()) {
+                $dirs[] = $dir->getPathname();
+            }
+        }
+        return $dirs;
+    }
+
+    /**
+     * Create a directory.
+     *
+     * @param  string  $path
+     * @param  int     $mode
+     * @param  bool    $recursive
+     * @param  bool    $force
+     * @return bool
+     */
+    public function makeDirectory($path, $mode = 0755, $recursive = false, $force = false)
+    {
+        if ($force) {
+            return @mkdir($path, $mode, $recursive);
+        }
+
+        return mkdir($path, $mode, $recursive);
+    }
+
+    /**
+     * Move a directory.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @param  bool  $overwrite
+     * @return bool
+     */
+    public function moveDirectory($from, $to, $overwrite = false)
+    {
+        if ($overwrite && $this->isDirectory($to)) {
+            if (! $this->deleteDirectory($to)) {
+                return false;
             }
         }
 
-
-        $this->dirs = array_merge($this->dirs, $resolvedDirs);
-
-        return $this;
+        return @rename($from, $to) === true;
     }
 
-    private function normalizeDir($dir)
+    /**
+     * Copy a directory from one location to another.
+     *
+     * @param  string  $directory
+     * @param  string  $destination
+     * @param  int     $options
+     * @return bool
+     */
+    public function copyDirectory($directory, $destination, $options = null)
     {
-        return rtrim($dir, '/'.\DIRECTORY_SEPARATOR);
+        if (! $this->isDirectory($directory)) {
+            return false;
+        }
+
+        $options = $options ?: FilesystemIterator::SKIP_DOTS;
+
+        // If the destination directory does not actually exist, we will go ahead and
+        // create it recursively, which just gets the destination prepared to copy
+        // the files over. Once we make the directory we'll proceed the copying.
+        if (! $this->isDirectory($destination)) {
+            $this->makeDirectory($destination, 0777, true);
+        }
+
+        $items = new FilesystemIterator($directory, $options);
+
+        foreach ($items as $item) {
+            // As we spin through items, we will check to see if the current file is actually
+            // a directory or a file. When it is actually a directory we will need to call
+            // back into this function recursively to keep copying these nested folders.
+            $target = $destination.'/'.$item->getBasename();
+
+            if ($item->isDir()) {
+                $path = $item->getPathname();
+
+                if (! $this->copyDirectory($path, $target, $options)) {
+                    return false;
+                }
+            }
+
+            // If the current items is just a regular file, we will just copy this to the new
+            // location and keep looping. If for some reason the copy fails we'll bail out
+            // and return false, so the developer is aware that the copy process failed.
+            else {
+                if (! $this->copy($item->getPathname(), $target)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Recursively delete a directory.
+     *
+     * The directory itself may be optionally preserved.
+     *
+     * @param  string  $directory
+     * @param  bool    $preserve
+     * @return bool
+     */
+    public function deleteDirectory($directory, $preserve = false)
+    {
+        if (! $this->isDirectory($directory)) {
+            return false;
+        }
+
+        $items = new FilesystemIterator($directory);
+
+        foreach ($items as $item) {
+            // If the item is a directory, we can just recurse into the function and
+            // delete that sub-directory otherwise we'll just delete the file and
+            // keep iterating through each file until the directory is cleaned.
+            if ($item->isDir() && ! $item->isLink()) {
+                $this->deleteDirectory($item->getPathname());
+            }
+
+            // If the item is just a file, we can go ahead and delete it since we're
+            // just looping through and waxing all of the files in this directory
+            // and calling directories recursively, so we delete the real path.
+            else {
+                $this->delete($item->getPathname());
+            }
+        }
+
+        if (! $preserve) {
+            @rmdir($directory);
+        }
+
+        return true;
+    }
+
+    /**
+     * Empty the specified directory of all files and folders.
+     *
+     * @param  string  $directory
+     * @return bool
+     */
+    public function cleanDirectory($directory)
+    {
+        return $this->deleteDirectory($directory, true);
     }
 }

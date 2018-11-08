@@ -13,6 +13,12 @@ register_shutdown_function(function() {
     View::process($return);
 });
 
+// 类自动加载
+spl_autoload_register(function ($class) {
+    require_once dirname(__DIR__) . '/lib/Support/' . $class . '.class.php';
+});
+
+
 // ==================================================== //
 /**
  * 导入视图

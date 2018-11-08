@@ -12,39 +12,19 @@ require_once dirname(__DIR__) . '/lib/Common/functions.php';
 require_once dirname(__DIR__) . '/bootstrap/app.php';
 
 
-// load('PHPPager.Pager');
-// $page = new \PHPPager\Pager();
-// print_r($page);
 
-// use App\Filesystem\Filesystem;
-//
-// $res = Filesystem::create()->in((BASE_PATH . '/config'));
-//
-// foreach ($res as $file) {
-//     print_r($file);
-// }
-// die;
+use App\Filesystem\Filesystem;
+// use App\Finder\Finder;
+use Nette\Utils\Finder;
 
-$path = dirname(__DIR__) . '/config';
-$directory = new \RecursiveDirectoryIterator($path, \RecursiveIteratorIterator::LEAVES_ONLY);
-$iterator = new \RecursiveIteratorIterator($directory);
-$dirs = array();
-foreach ($iterator as $dir) {
-    // $dirs[] = $dir->getPathname();
-    if ($dir->isDir()) {
-        $dirs[] = rtrim($dir->getPathname(), '.');
-    }
+$path = BASE_PATH . '/config';
+$iterator = Finder::findDirectories()->in($path);
+
+
+// $res = Finder::create()->files()->in($path);
+foreach ($iterator as $key => $file) {
+    print_r($file);
+    print_r($key);
 }
-print_r($dirs);die;
+die;
 
-
-$path = dirname(__DIR__) . '/config';
-$directory = new \RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
-$iterator = new \RecursiveIteratorIterator($directory);
-$files = array();
-foreach ($iterator as $info) {
-    // if ($info->isFile()) {
-        $files[] = $info->getPathname();
-    // }
-}
-print_r($files);die;
