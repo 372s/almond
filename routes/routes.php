@@ -1,6 +1,6 @@
 <?php
-use Wpollen\Routing\Router;
 
 Router::get('/', 'HomeController@home');
-Router::get('/phpQuery', 'HomeController@phpQuery');
+Router::get('/test', 'HomeController@test');
+Router::get('/finder', 'HomeController@finder');
 

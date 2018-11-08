@@ -4,7 +4,7 @@ namespace App\Foundation;
 
 use Exception;
 use SplFileInfo;
-use Bootstrap\Foundation\Application;
+use App\Foundation\Application;
 use DirectoryIterator;
 /**
 * \LoadConfiguration
@@ -14,7 +14,7 @@ class LoadConfiguration
     /**
      * Bootstrap the given application.
      *
-     * @param  \Bootstrap\Application  $app
+     * @param  \App\Foundation\Application  $app
      * @return void
      */
     public function bootstrap(Application $app)

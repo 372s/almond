@@ -8,7 +8,7 @@
         }
     },
     "require": {
-        "wpollen/framework": "dev-master",
+        "wpollen/framework": "*",
         "codeguy/upload": "dev-master",
         "guzzlehttp/guzzle": "*",
         "nette/finder": "^2.4"
