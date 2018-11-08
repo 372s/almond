@@ -1,6 +1,6 @@
 {
     "name": "wpollen/almond",
-    "description": "微信框架搭建",
+    "description": "框架搭建",
     "repositories": {
         "wpollen/framework": {
             "type": "vcs",
