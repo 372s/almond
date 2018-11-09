@@ -1,15 +1,15 @@
 <?php
 
-// use Wpollen\Routing\Router;
-// use Wpollen\View\View;
-class_alias('Wpollen\Routing\Router', 'Router');
-class_alias('Wpollen\View\View', 'View');
+use Wpollen\Foundation\Application;
+use Wpollen\Foundation\Bootstrap\RegisterProviders;
+
+$app = new Application(dirname(__DIR__));
+(new RegisterProviders())->bootstrap($app);
 
 // TODO 加载配置文件
 require_once dirname(__DIR__) . '/routes/routes.php';
 
 // TODO 中间件
-
 register_shutdown_function(function() {
     $return = Router::dispatch();
     View::process($return);
